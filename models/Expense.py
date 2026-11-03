@@ -21,6 +21,7 @@ class ExpenseUpdate(SQLModel):
     description:str|None=Field(default=None,max_length=255)
     spent_on:date|None=Field(default=None)
     category_id:int|None=Field(default=None)
+    payment_method: str | None = Field(default=None, max_length=30)
         
 class ExpensePublic(ExpenseBase):
     id:int
