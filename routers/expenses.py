@@ -5,13 +5,12 @@ from sqlmodel import select
 from models.Expense import Expense,ExpensePublic,ExpenseCreate,ExpenseUpdate
 from sqlmodel import Session
 from dependencies.dependencies import SessionDep,CurrentUser
-from sqlmodel import SQLModel
 
 from datetime import date
 from decimal import Decimal
 from fastapi import Query
 
-router=APIRouter(prefix="/expenses",tags=["expense"])
+router=APIRouter(prefix="/expenses",tags=["expenses"])
 
 def check_category_owned(session:Session,user:User,category_id:int):
     category=session.exec(select(Category).where(Category.id==category_id)).first()
@@ -35,7 +34,7 @@ def create_expense(expense_in:ExpenseCreate,session:SessionDep,user:CurrentUser)
     return expense
 
 @router.get("/{expense_id}",response_model=ExpensePublic)
-def check_expense(expense_id:int,session:SessionDep,user:CurrentUser):
+def get_expense(expense_id:int,session:SessionDep,user:CurrentUser):
     return get_owned_expense(session,user,expense_id)
 
 @router.patch("/{expense_id}",response_model=ExpensePublic)
@@ -46,6 +45,9 @@ def update_expense(
     user:CurrentUser):
     expense=get_owned_expense(session,user,expense_id)
     data=expense_in.model_dump(exclude_unset=True)
+    for field in ("amount", "spent_on", "category_id"):
+        if field in data and data[field] is None:
+            raise HTTPException(status_code=422, detail=f"{field} cannot be null")
     if "category_id" in data:
         check_category_owned(session,user,data["category_id"])
     expense.sqlmodel_update(data)
