@@ -7,6 +7,7 @@ class ExpenseBase(SQLModel):
     description:str|None=Field(default=None,max_length=255)
     spent_on:date=Field(index=True)
     category_id:int=Field(foreign_key="category.id",index=True)
+    payment_method:str|None=Field(default=None, max_length=30)
     
 class Expense(ExpenseBase,table=True):
     id:int|None=Field(default=None,primary_key=True)

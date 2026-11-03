@@ -12,12 +12,12 @@ from security.security import hash_password,verify_password,create_access_token
 
 router=APIRouter(prefix="/auth",tags=["auth"])
 
-@router.post("/rgister",response_model=UserPublic,status_code=status.HTTP_201_CREATED)
+@router.post("/register",response_model=UserPublic,status_code=status.HTTP_201_CREATED)
 def register(user_in:UserCreate,session:SessionDep):
     existing=session.exec(select(User).where(User.email==user_in.email)).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
-    user=User.model_validate(user_in,update={"hashed_password":(user_in.password)},)
+    user = User.model_validate(user_in, update={"hashed_password": hash_password(user_in.password)})
     session.add(user)
     session.commit()
     session.refresh(user)
