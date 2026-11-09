@@ -1,1 +1,1 @@
-App name: Expense Manager
+App name: Expense Tracker API
